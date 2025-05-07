@@ -1,0 +1,4 @@
+org/wso2/am/integration/tests/basictestcontainertest/TestEnvHolder.class
+org/wso2/am/integration/tests/publisher/CreatePublishAPITest.class
+org/wso2/am/integration/tests/AdminServiceTest/TenantUserInitialiserTest.class
+org/wso2/am/integration/tests/basictestcontainertest/APIAndApplicationBasicTestCase.class
