@@ -4,7 +4,7 @@
 ##    Given I have initialized test instance
 #    Given I have initialized the NodeApp server container
 ##    And I have initialized the Default API Manager container
-#    And I have initialized the Custom API Manager container with label "allowedScope" and deployment toml file path at "/home/abisherk/Internship/InternProject/apim-test-framework-testcontainers/tests-integration/cucumber-tests/src/test/resources/features/allowedScopes/deployment.toml"
+#    And I have initialized the Custom API Manager container with label "allowedScope" and deployment toml file path at "/home/abisherk/Internship/InternProject/apim-test-framework/tests-integration/cucumber-tests/src/test/resources/features/allowedScopes/deployment.toml"
 #    And I initialize the Publisher REST API client with username "admin", password "admin" and tenant "carbon.super"
 #    And I initialize the Store REST API client with username "admin", password "admin" and tenant "carbon.super"
 #
