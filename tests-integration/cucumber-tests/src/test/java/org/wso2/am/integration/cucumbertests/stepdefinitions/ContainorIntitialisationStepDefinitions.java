@@ -1,0 +1,110 @@
+package org.wso2.am.integration.cucumbertests.stepdefinitions;
+
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import org.wso2.am.integration.cucumbertests.di.TestContext;
+import org.wso2.am.testcontainers.CustomAPIMContainer;
+import org.wso2.am.testcontainers.DefaultAPIMContainer;
+import org.wso2.am.testcontainers.NodeAppServer;
+import org.wso2.am.testcontainers.TomcatServer;
+
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
+public class ContainorIntitialisationStepDefinitions {
+    String baseUrl;
+    String serviceBaseUrl;
+    String baseGatewayUrl;
+    Integer HTTPS_PORT=8243;
+    Integer HTTP_PORT=8280;
+    CustomAPIMContainer customApimContainer;
+
+
+    private final TestContext context;
+
+    public ContainorIntitialisationStepDefinitions(TestContext context) {
+        this.context = context;
+    }
+    // DefaultAPIMContainer step
+    @Given("I have initialized the Default API Manager container")
+    public void initializeDefaultAPIMContainer() {
+        DefaultAPIMContainer apimContainer = DefaultAPIMContainer.getInstance();
+        baseUrl = apimContainer.getAPIManagerUrl();
+        context.set("baseUrl",baseUrl);
+        Integer gatewayPort= apimContainer.getMappedPort(HTTPS_PORT);
+        String gatewayHost = apimContainer.getHost();
+        baseGatewayUrl= String.format("https://%s:%d", gatewayHost, gatewayPort);
+        context.set("baseGatewayUrl",baseGatewayUrl);
+    }
+
+    @Given("I have initialized the Custom API Manager container with label {string} and deployment toml file path at {string}")
+    public void initializeCustomAPIMContainer(String label,String tomlPath) throws IOException, InterruptedException {
+        customApimContainer = new CustomAPIMContainer(label,tomlPath);
+        customApimContainer.start();
+
+        // Verifying that the file was copied correctly
+        String filePathInsideContainer = "/opt/repository/conf/deployment.toml";
+
+        // Executing a command inside the container to check if the file exists and print its contents
+        String fileContents = customApimContainer.execInContainer("cat", filePathInsideContainer).getStdout();
+
+        // Log the contents of the file to confirm it is correctly copied
+        System.out.println("Contents of the copied deployment.toml inside the container:");
+        System.out.println(fileContents);
+
+        baseUrl = customApimContainer.getAPIManagerUrl();
+        context.set("baseUrl",baseUrl);
+        Integer gatewayPort= customApimContainer.getMappedPort(HTTPS_PORT);
+        String gatewayHost = customApimContainer.getHost();
+        baseGatewayUrl= String.format("https://%s:%d", gatewayHost, gatewayPort);
+        context.set("baseGatewayUrl",baseGatewayUrl);
+    }
+
+    @Then("I stop the Custom API Manager container")
+    public void endCustomAPIMContainer() throws InterruptedException {
+//       customApimContainer.stop();
+       customApimContainer.close();
+//       Thread.sleep(3000);
+    }
+
+    // TomcatServer container step
+    @Given("I have initialized the Tomcat server container")
+    public void initializeTomcatServerContainer() {
+
+        TomcatServer tomcat = TomcatServer.getInstance();
+        serviceBaseUrl = "http://tomcatbackend:8080/";
+        context.set("serviceBaseUrl",serviceBaseUrl);
+    }
+
+    // TomcatServer container step
+    @Given("I have initialized the NodeApp server container")
+    public void initializeNodeAppServerContainer() {
+        NodeAppServer nodeapp = NodeAppServer.getInstance();
+        serviceBaseUrl = "http://nodebackend:8080/";
+
+        context.set("serviceBaseUrl",serviceBaseUrl);
+
+    }
+
+    // DefaultAPIMContainer step
+    @Given("I have initialized test instance")
+    public void initializeAPIMContainer() {
+        baseUrl = "http://localhost:9443/";
+        context.set("baseUrl",baseUrl);
+        baseGatewayUrl="https://localhost:8243";
+        context.set("baseGatewayUrl",baseGatewayUrl);
+        serviceBaseUrl = "http://nodebackend:8080/";
+        context.set("serviceBaseUrl",serviceBaseUrl);
+
+
+    }
+
+    @Then("I clear the context")
+    public void clearContext(){
+        context.clear();
+    }
+
+
+}
+
+
