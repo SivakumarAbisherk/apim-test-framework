@@ -1,4 +1,4 @@
-/home/abisherk/Internship/InternProject/apim-test-framework-testcontainers/tests-integration/backends-tests/src/test/java/org/wso2/am/integration/tests/basictestcontainertest/APIAndApplicationBasicTestCase.java
-/home/abisherk/Internship/InternProject/apim-test-framework-testcontainers/tests-integration/backends-tests/src/test/java/org/wso2/am/integration/tests/publisher/CreatePublishAPITest.java
-/home/abisherk/Internship/InternProject/apim-test-framework-testcontainers/tests-integration/backends-tests/src/test/java/org/wso2/am/integration/tests/AdminServiceTest/TenantUserInitialiserTest.java
-/home/abisherk/Internship/InternProject/apim-test-framework-testcontainers/tests-integration/backends-tests/src/test/java/org/wso2/am/integration/tests/basictestcontainertest/TestEnvHolder.java
+/home/abisherk/Internship/InternProject/apim-test-framework/tests-integration/backends-tests/src/test/java/org/wso2/am/integration/tests/AdminServiceTest/TenantUserInitialiserTest.java
+/home/abisherk/Internship/InternProject/apim-test-framework/tests-integration/backends-tests/src/test/java/org/wso2/am/integration/tests/publisher/CreatePublishAPITest.java
+/home/abisherk/Internship/InternProject/apim-test-framework/tests-integration/backends-tests/src/test/java/org/wso2/am/integration/tests/basictestcontainertest/TestEnvHolder.java
+/home/abisherk/Internship/InternProject/apim-test-framework/tests-integration/backends-tests/src/test/java/org/wso2/am/integration/tests/basictestcontainertest/APIAndApplicationBasicTestCase.java
