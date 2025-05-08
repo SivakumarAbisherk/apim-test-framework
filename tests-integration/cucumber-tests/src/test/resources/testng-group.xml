@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suite name="Grouped Test Suite" >
+
+    <test name="GroupedTest" preserve-order="true">
+
+<!--        modify the value attribute o with the path of the feature files you want to test -->
+        <parameter name="cucumber.features" value="src/test/resources/features/api_lifecycle_test.feature"/>
+
+        <parameter name="cucumber.glue" value="org.wso2.am.integration.cucumbertests.stepdefinitions"/>
+        <parameter name="cucumber.plugin" value="pretty"/>
+        <classes>
+            <class name="org.wso2.am.integration.cucumbertests.runners.groupedTestRunner"/>
+        </classes>
+
+    </test>
+
+</suite>
