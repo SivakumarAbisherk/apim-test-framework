@@ -1,9 +1,12 @@
 package org.wso2.am.integration.cucumbertests.stepdefinitions;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.cucumber.datatable.DataTable;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.wso2.am.integration.clients.publisher.api.v1.dto.APIDTO;
@@ -18,20 +21,20 @@ import org.wso2.am.integration.test.utils.bean.APIRevisionDeployUndeployRequest;
 import org.wso2.am.integration.test.utils.bean.APIRevisionRequest;
 import org.wso2.am.testcontainers.DefaultAPIMContainer;
 import org.wso2.am.testcontainers.TomcatServer;
+
+import org.wso2.carbon.apimgt.api.doc.model.APIResource;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class PublisherStepDefinitions {
 
-    private String API_ENDPOINT_POSTFIX_URL = "jaxrs_basic/services/customers/customerservice/";
+//    private String API_ENDPOINT_POSTFIX_URL = "jaxrs_basic/services/customers/customerservice/";
 
-//    private String API_ENDPOINT_POSTFIX_URL = "am/sample/pizzashack/v1/api/";
+    private String API_ENDPOINT_POSTFIX_URL = "am/sample/pizzashack/v1/api/";
 
     RestAPIPublisherImpl publisher;
     String createdApiId;
@@ -98,6 +101,69 @@ public class PublisherStepDefinitions {
         this.context.set("createdApiId", apiId);
     }
 
+    @When("I create an API with the following details")
+    public void i_create_api_with_details(DataTable dataTable) throws Exception {
+        Map<String, String> data = dataTable.asMap(String.class, String.class);
+
+        String name = data.getOrDefault("name", "DefaultAPI");
+        String contextPath = data.getOrDefault("context", "/defaultContext");
+        String version = data.getOrDefault("version", "1.0.0");
+
+        String apiEndpointURL = data.getOrDefault("apiEndpointURL",API_ENDPOINT_POSTFIX_URL);
+        String apiProductionEndPointUrl = serviceBaseUrl + apiEndpointURL;
+        context.set("apiProductionEndPointUrl", apiProductionEndPointUrl);
+
+        APIRequest apiRequest = new APIRequest(name, contextPath, new URL(apiProductionEndPointUrl));
+        apiRequest.setVersion(version);
+        apiRequest.setDescription(data.getOrDefault("description", "Default API for testing."));
+        apiRequest.setTags(data.getOrDefault("tags", "test"));
+        apiRequest.setTiersCollection(data.getOrDefault("tiersCollection", "Gold,Bronze"));
+        apiRequest.setTier(data.getOrDefault("tier", "Gold"));
+        apiRequest.setDefault_version_checked(data.getOrDefault("defaultVersion", "true"));
+
+        if (data.containsKey("securitySchemes")) {
+            List<String> securitySchemes = Arrays.stream(data.get("securitySchemes").split(","))
+                    .map(String::trim)
+                    .collect(Collectors.toList());
+            apiRequest.setSecurityScheme(securitySchemes);
+        } else {
+            apiRequest.setSecurityScheme(Arrays.asList("oauth2", "api_key"));
+        }
+
+        apiRequest.setBusinessOwner(data.getOrDefault("businessOwner", "defaultOwner"));
+        apiRequest.setBusinessOwnerEmail(data.getOrDefault("businessOwnerEmail", "owner@example.com"));
+        apiRequest.setTechnicalOwner(data.getOrDefault("technicalOwner", "defaultTech"));
+        apiRequest.setTechnicalOwnerEmail(data.getOrDefault("technicalOwnerEmail", "tech@example.com"));
+
+        // Parse operations if provided
+        if (data.containsKey("operations")) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            List<Map<String, String>> operations = objectMapper.readValue(
+                    data.get("operations"),
+                    new TypeReference<List<Map<String, String>>>() {}
+            );
+
+            List<APIOperationsDTO> operationsDTOS = new ArrayList<>();
+            for (Map<String, String> op : operations) {
+                APIOperationsDTO apiOperationsDTO = new APIOperationsDTO();
+                apiOperationsDTO.setTarget(op.get("target"));
+                apiOperationsDTO.setVerb(op.get("verb"));
+                String authType = op.getOrDefault("authType", "Application & Application User");
+                apiOperationsDTO.setAuthType(authType);
+                String throttlingPolicy = op.getOrDefault("throttlingPolicy", "Unlimited");
+                apiOperationsDTO.setThrottlingPolicy(throttlingPolicy);
+                operationsDTOS.add(apiOperationsDTO);
+
+            }
+            apiRequest.setOperationsDTOS(operationsDTOS);
+        }
+
+        HttpResponse apiCreationResponse = publisher.addAPI(apiRequest);
+        String apiId = apiCreationResponse.getData();
+        context.set("createdApiId", apiId);
+    }
+
+
     @When("I add {string} operation without any scopes to the created API with id {string}")
     public void i_add_operation_without_scopes_to_api(String operation,String apiId) throws Exception {
         String actualApiId = apiId;
@@ -123,10 +189,7 @@ public class PublisherStepDefinitions {
 
     @When("I add {string} operation with scopes {string} to the created API with id {string}")
     public void i_add_operation_with_scopes_to_api(String operation, String scopesCsv, String apiId) throws Exception {
-        String actualApiId = apiId;
-        if (apiId.startsWith("<") && apiId.endsWith(">")) {
-            actualApiId = (String) context.get(apiId.substring(1, apiId.length() - 1));
-        }
+        String actualApiId = resolveFromContext(apiId);
         HttpResponse createdApiResponse = publisher.getAPI(actualApiId);
         APIDTO apiDto = new Gson().fromJson(createdApiResponse.getData(), APIDTO.class);
 
