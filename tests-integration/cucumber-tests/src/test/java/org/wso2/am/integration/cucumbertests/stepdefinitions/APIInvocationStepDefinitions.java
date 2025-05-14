@@ -111,7 +111,7 @@ public class APIInvocationStepDefinitions {
     @Then("the API response status should be {int}")
     public void the_api_response_status_should_be(int expectedStatus) {
         HttpResponse response = (HttpResponse) context.get("invokeAPIResponse");
-        Assert.assertEquals(response.getResponseCode(), expectedStatus, response.getData()+"       " + apiUrl +"   "+ context.get("apiProductionEndPointUrl").toString()+"   "+context.get("tester"));
+        Assert.assertEquals(response.getResponseCode(), expectedStatus, response.toString());
     }
 
     private String resolveFromContext(String input) {

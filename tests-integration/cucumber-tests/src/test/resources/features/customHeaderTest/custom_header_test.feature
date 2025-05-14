@@ -4,11 +4,26 @@ Feature: Custom Header Authorization and API Key Support
     Given I have initialized the NodeApp server container
 #    And I have initialized the Default API Manager container
     And I have initialized the Custom API Manager container with label "customHeader" and deployment toml file path at "/home/abisherk/Internship/InternProject/apim-test-framework/tests-integration/cucumber-tests/src/test/resources/features/customHeaderTest/deployment.toml"
-    And I initialize the Store REST API client with username "admin", password "admin" and tenant "carbon.super" for container "custom_header"
-    And I initialize the Publisher REST API client with username "admin", password "admin" and tenant "carbon.super" for container "custom_header"
+    And I initialize the Store REST API client with username "admin", password "admin" and tenant "carbon.super"
+    And I initialize the Publisher REST API client with username "admin", password "admin" and tenant "carbon.super"
     And I create an application named "CustomHeaderApp" with throttling tier "Unlimited"
-    And I create an API with name "CustomAuthHeaderTestAPI1", context "customAuthHeaderTest1" and version "1.0.0"
-    And I add "/customers/123" operation without any scopes to the created API with id "<createdApiId>"
+    And I create an API with the following details
+      | name                | CustomerServiceAPI                                  |
+      | context             | /jaxrs                                              |
+      | version             | 1.0.0                                               |
+      | apiEndpointURL      | jaxrs_basic/services/customers/customerservice/     |
+      | description         | Simple Customer Service API                         |
+      | tags                | customer,service                                    |
+      | tiersCollection     | Gold,Bronze,Unlimited                               |
+      | tier                | Gold                                                |
+      | defaultVersion      | true                                                |
+      | securitySchemes     | oauth2,basic,api_key                                |
+      | businessOwner       | Jane Roe                                            |
+      | businessOwnerEmail  | marketing@jaxrs.com                                 |
+      | technicalOwner      | John Doe                                            |
+      | technicalOwnerEmail | architecture@jaxrs.com                              |
+      | operations          | [{"target":"/customers/{id}","verb":"GET","authType":"Application & Application User","throttlingPolicy":"Unlimited"},{"target":"/order","verb":"POST","authType":"Application","throttlingPolicy":"Unlimited"}] |
+
     And I deploy a revision of the API with id "<createdApiId>"
     And I publish the API with id "<createdApiId>"
     And I subscribe to API "<createdApiId>" using application "<createdAppId>" with throttling policy "Gold"

@@ -19,7 +19,7 @@ Feature: Complete API Lifecycle Management
       | tiersCollection     | Gold,Bronze,Unlimited                               |
       | tier                | Gold                                                |
       | defaultVersion      | true                                                |
-      | securitySchemes     | oauth2,basic                                        |
+      | securitySchemes     | oauth2,basic,api_key                                |
       | businessOwner       | Jane Roe                                            |
       | businessOwnerEmail  | marketing@jaxrs.com                                 |
       | technicalOwner      | John Doe                                            |
