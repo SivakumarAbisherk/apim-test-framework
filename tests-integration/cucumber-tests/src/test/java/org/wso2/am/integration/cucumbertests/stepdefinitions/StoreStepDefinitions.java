@@ -40,29 +40,23 @@ public class StoreStepDefinitions {
 
         this.context = context;
         baseUrl = this.context.get("baseUrl").toString();
-        //        baseUrl="https://localhost:9443/";
+//        baseUrl="https://localhost:9443/";
     }
 
 
-    @When("I initialize the Store REST API client with username {string}, password {string} and tenant {string} for container {string}")
-    public void i_initialize_store_client(String username, String password, String tenantDomain, String containerName) {
+    @When("I initialize the Store REST API client with username {string}, password {string} and tenant {string}")
+    public void i_initialize_store_client(String username, String password, String tenantDomain) {
+        String containerName = context.get("label").toString();
         store = new RestAPIStoreImpl(username, password, tenantDomain, baseUrl, containerName);
         context.set("store",store);
         context.set("username",username);
         context.set("password",password);
         context.set("tenant",tenantDomain);
-        Assert.assertNotNull(context.get("username"));
-        Assert.assertNotNull(context.get("password"));
     }
 
     @When("I create an application named {string} with throttling tier {string}")
     public void i_create_application(String appName, String throttlingTier) throws Exception {
-        ApplicationDTO application = new ApplicationDTO();
-        application.setName(appName);
-        application.setThrottlingPolicy(throttlingTier);
-        application.setDescription("Test app created via Cucumber");
-        application.setTokenType(ApplicationDTO.TokenTypeEnum.OAUTH);
-        ApplicationDTO response = store.addApplication("Application1", APIMIntegrationConstants.APPLICATION_TIER.UNLIMITED, "https://localhost:8080/callback","This is new application");
+        ApplicationDTO response = store.addApplication(appName, throttlingTier, "","This is new application");
         createdAppId = response.getApplicationId();
         context.set("createdAppId",createdAppId);
     }
@@ -74,60 +68,31 @@ public class StoreStepDefinitions {
 
     @When("I subscribe to API {string} using application {string} with throttling policy {string}")
     public void i_subscribe_to_api(String apiId, String applicationId, String throttlingPolicy) throws Exception {
-        String actualApiId = apiId;
-        if (apiId.startsWith("<") && apiId.endsWith(">")) {
-            actualApiId = (String) context.get(apiId.substring(1, apiId.length() - 1));
-        }
-        String actualAppId = applicationId;
-        if (applicationId.startsWith("<") && applicationId.endsWith(">")) {
-            actualAppId = (String) context.get(applicationId.substring(1, apiId.length() - 1));
-        }
+        String actualApiId = resolveFromContext(apiId);
+        String actualAppId = resolveFromContext(applicationId);
         HttpResponse response = store.createSubscription(actualApiId,actualAppId,throttlingPolicy);
         createdSubscriptionId = response.getData();
         context.set("createdSubscriptionId",createdSubscriptionId);
     }
-//
-//    @When("I remove the subscription with id {string}")
-//    public void i_remove_subscription(String subscriptionId) throws Exception {
-//        store.removeSubscription(subscriptionId);
-//    }
-//
+
     @Then("I should be able to retrieve the application with id {string}")
     public void i_should_be_able_to_retrieve_application(String appId) throws Exception {
-        String actualAppId = appId;
-        if (appId.startsWith("<") && appId.endsWith(">")) {
-            actualAppId = (String) context.get(appId.substring(1, appId.length() - 1));
-        }
+        String actualAppId = resolveFromContext(appId);
         ApplicationDTO appDTO=store.getApplicationById(actualAppId);
         Assert.assertEquals(appDTO.getApplicationId(),actualAppId);
     }
 
     @Then("I should be able to retrieve the subscription for Api {string} by Application {string}")
     public void i_should_be_able_to_retrieve_subscription(String apiId, String appId) throws Exception {
-        String actualApiId = apiId;
-        if (apiId.startsWith("<") && apiId.endsWith(">")) {
-            actualApiId = (String) context.get(apiId.substring(1, apiId.length() - 1));
-        }
-        String actualAppId = appId;
-        if (appId.startsWith("<") && appId.endsWith(">")) {
-            actualAppId = (String) context.get(appId.substring(1, appId.length() - 1));
-        }
+        String actualApiId = resolveFromContext(apiId);
+        String actualAppId = resolveFromContext(appId);
         SubscriptionListDTO subDTO = store.getSubscription(actualApiId,actualAppId,null,null);
         Assert.assertNotNull(subDTO);
     }
 
-//    @When("I regenerate the consumer secret for application id {string} and key type {string}")
-//    public void i_regenerate_consumer_secret(String appId, String keyType) throws Exception {
-//        store.regenerateConsumerSecret(appId, keyType);
-//    }
-//
-
     @When("I generate client credentials for application id {string} with key type {string}")
     public void i_generate_client_credentials(String appId, String keyType) throws Exception {
-        String actualAppId = appId;
-        if (appId.startsWith("<") && appId.endsWith(">")) {
-            actualAppId = (String) context.get(appId.substring(1, appId.length() - 1));
-        }
+        String actualAppId = resolveFromContext(appId);
         List<String> grantTypes = Collections.singletonList("client_credentials");
         List<String> scopes = Collections.emptyList(); // Add any if needed
         ApplicationKeyDTO keyDTO = store.generateKeys(actualAppId, "-1", "https://localhost/callback",
@@ -187,7 +152,7 @@ public class StoreStepDefinitions {
 
     @Then("the access token should be available")
     public void access_token_should_be_available() {
-        String token = (String) context.get("accessToken");
+        String token = (String) context.get("generatedAccessToken");
         Assert.assertNotNull(token, "Expected access token to be generated, but it was null");
     }
 

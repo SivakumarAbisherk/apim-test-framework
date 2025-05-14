@@ -8,7 +8,6 @@ import io.cucumber.java.en.When;
 import io.cucumber.datatable.DataTable;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.wso2.am.integration.clients.publisher.api.v1.dto.APIDTO;
 import org.wso2.am.integration.clients.publisher.api.v1.dto.APIScopeDTO;
 import org.wso2.am.integration.clients.publisher.api.v1.dto.ScopeDTO;
@@ -22,7 +21,6 @@ import org.wso2.am.integration.test.utils.bean.APIRevisionRequest;
 import org.wso2.am.testcontainers.DefaultAPIMContainer;
 import org.wso2.am.testcontainers.TomcatServer;
 
-import org.wso2.carbon.apimgt.api.doc.model.APIResource;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 
 import java.io.File;
@@ -49,13 +47,13 @@ public class PublisherStepDefinitions {
         baseUrl = context.get("baseUrl").toString();
         serviceBaseUrl= context.get("serviceBaseUrl").toString();
 //        baseUrl="https://localhost:9443/";
-
         // pizzashack
 //        serviceBaseUrl="https://localhost:9443/";
     }
 
-    @When("I initialize the Publisher REST API client with username {string}, password {string} and tenant {string} for container {string}")
-    public void i_initialize_publisher_client(String username, String password, String tenantDomain, String containerLabel) {
+    @When("I initialize the Publisher REST API client with username {string}, password {string} and tenant {string}")
+    public void i_initialize_publisher_client(String username, String password, String tenantDomain) {
+        String containerLabel = context.get("label").toString();
         publisher = new RestAPIPublisherImpl(username, password, tenantDomain, baseUrl, containerLabel);
     }
 
@@ -166,10 +164,7 @@ public class PublisherStepDefinitions {
 
     @When("I add {string} operation without any scopes to the created API with id {string}")
     public void i_add_operation_without_scopes_to_api(String operation,String apiId) throws Exception {
-        String actualApiId = apiId;
-        if (apiId.startsWith("<") && apiId.endsWith(">")) {
-            actualApiId = (String) context.get(apiId.substring(1, apiId.length() - 1));
-        }
+        String actualApiId = resolveFromContext(apiId);
         HttpResponse createdApiResponse = publisher.getAPI(actualApiId);
         APIDTO apiDto = new Gson().fromJson(createdApiResponse.getData(), APIDTO.class);
 
@@ -225,7 +220,6 @@ public class PublisherStepDefinitions {
     }
 
 
-
     @When("I create scope {string} with roles {string}")
     public void i_create_scope_with_roles(String scopeName, String rolesCsv) throws Exception {
 
@@ -244,10 +238,7 @@ public class PublisherStepDefinitions {
 
     @When("I add scopes {string} to the created API with id {string}")
     public void i_add_scopes_to_created_api(String scopesCsv, String apiId) throws Exception {
-        String actualApiId = apiId;
-        if (apiId.startsWith("<") && apiId.endsWith(">")) {
-            actualApiId = (String) context.get(apiId.substring(1, apiId.length() - 1));
-        }
+        String actualApiId = resolveFromContext(apiId);
         HttpResponse createdApiResponse = publisher.getAPI(actualApiId);
         APIDTO apiDto = new Gson().fromJson(createdApiResponse.getData(), APIDTO.class);
 
@@ -263,20 +254,10 @@ public class PublisherStepDefinitions {
 
     @When("I deploy a revision of the API with id {string}")
     public void i_deploy_revision(String apiId) throws Exception {
-        String actualApiId = apiId;
-        if (apiId.startsWith("<") && apiId.endsWith(">")) {
-            actualApiId = (String) context.get(apiId.substring(1, apiId.length() - 1));
-        }
+        String actualApiId = resolveFromContext(apiId);
         String revisionUUID = publisher.createAPIRevisionAndDeployUsingRest(actualApiId);
         Thread.sleep(10000);
         context.set("revisionID",revisionUUID);
-    }
-
-    @When("I update the API with id {string} to have name {string}")
-    public void i_update_the_api(String apiId, String name) throws Exception {
-        APIRequest request = new APIRequest(name, "/updated-context", new URL("http://example.com"));
-        request.setVersion("1.0.0");
-        publisher.updateAPI(request, apiId);
     }
 
     @When("I delete the API with id {string}")
@@ -286,10 +267,7 @@ public class PublisherStepDefinitions {
 
     @When("I publish the API with id {string}")
     public void i_publish_the_api(String apiId) throws Exception {
-        String actualApiId = apiId;
-        if (apiId.startsWith("<") && apiId.endsWith(">")) {
-            actualApiId = (String) context.get(apiId.substring(1, apiId.length() - 1));
-        }
+        String actualApiId = resolveFromContext(apiId);
         publisher.changeAPILifeCycleStatus(actualApiId, "Publish", null);
     }
 
@@ -310,21 +288,14 @@ public class PublisherStepDefinitions {
 
     @Then("I should be able to retrieve the API with id {string}")
     public void i_should_be_able_to_retrieve_the_api(String apiId) throws Exception {
-        String actualApiId = apiId;
-        if (apiId.startsWith("<") && apiId.endsWith(">")) {
-            actualApiId = (String) context.get(apiId.substring(1, apiId.length() - 1));
-        }
-
+        String actualApiId = resolveFromContext(apiId);
         HttpResponse response = publisher.getAPI(actualApiId);
         Assert.assertEquals(response.getResponseCode(), 200);
     }
 
     @Then("The lifecycle status of API {string} should be {string}")
     public void the_lifecycle_status_should_be(String apiId, String status) throws Exception {
-        String actualApiId = apiId;
-        if (apiId.startsWith("<") && apiId.endsWith(">")) {
-            actualApiId = (String) context.get(apiId.substring(1, apiId.length() - 1));
-        }
+        String actualApiId = resolveFromContext(apiId);
         HttpResponse response = publisher.getLifecycleStatus(actualApiId);
         Assert.assertEquals(response.getData(),status);
     }
@@ -411,16 +382,6 @@ public class PublisherStepDefinitions {
         publisher.checkValidEndpoint(endpoint, apiId);
     }
 
-//    @When("I create shared scope {string}")
-//    public void i_create_shared_scope(String scopeName) throws Exception {
-//        ScopeDTO scope = new ScopeDTO();
-//        scope.setName(scopeName);
-//        scope.setBindings(new ScopeBindingsDTO());
-//        scope.getBindings().setType("default");
-//        scope.getBindings().setValues(Collections.singletonList("admin"));
-//        publisher.addSharedScope(scope);
-//    }
-
     @When("I delete shared scope with id {string}")
     public void i_delete_shared_scope(String scopeId) throws Exception {
         publisher.deleteSharedScope(scopeId);
@@ -438,5 +399,4 @@ public class PublisherStepDefinitions {
         String actualApiId = (String) context.get(apiId.substring(1, apiId.length() - 1));
         publisher.deleteAPI(actualApiId);
     }
-
 }

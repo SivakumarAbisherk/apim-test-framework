@@ -30,49 +30,36 @@ public class APIInvocationStepDefinitions {
     }
 
 
-//    @When("I invoke API of ID {string} with path {string} and method POST using access token {string} to add customer with name {string}")
-//    public void i_invoke_post_api_to_add_customer(String apiId, String path, String accessToken, String customerName) throws Exception {
-//        String actualApiId = apiId;
-//        if (apiId.startsWith("<") && apiId.endsWith(">")) {
-//            actualApiId = (String) context.get(apiId.substring(1, apiId.length() - 1));
-//        }
-//
-//        String actualAccessToken = accessToken;
-//        if (accessToken.startsWith("<") && accessToken.endsWith(">")) {
-//            actualAccessToken = (String) context.get(accessToken.substring(1, accessToken.length() - 1));
-//        }
-//
-//        RestAPIStoreImpl store = (RestAPIStoreImpl) context.get("store");
-//        APIDTO apiDto = store.getAPI(actualApiId);
-//        String apiContext = apiDto.getContext();
-//        String apiUrl = baseGatewayUrl + apiContext + path;
-//
-//        // Construct XML payload
-//        String xmlBody = String.format(
-//                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
-//                        "<customer>\n" +
-//                        "    <name>%s</name>\n" +
-//                        "</customer>", customerName);
-//
-//        Map<String, String> headers = new HashMap<>();
-//        headers.put("Authorization", "Bearer " + actualAccessToken);
-//        headers.put("Content-Type", "text/xml");
-//
-//        HttpResponse response = HTTPSClientUtils.doPost(apiUrl, headers, xmlBody);
-//        context.set("invokeAPIResponse", response);
-//    }
+    @When("I invoke API of ID {string} with path {string} and method POST using access token {string} to add customer with name {string}")
+    public void i_invoke_post_api_to_add_customer(String apiId, String path, String accessToken, String customerName) throws Exception {
+        String actualApiId = resolveFromContext(apiId);
+        String actualAccessToken = resolveFromContext(accessToken);
+
+        RestAPIStoreImpl store = (RestAPIStoreImpl) context.get("store");
+        APIDTO apiDto = store.getAPI(actualApiId);
+        String apiContext = apiDto.getContext();
+        String apiUrl = baseGatewayUrl + apiContext + path;
+
+        // Construct XML payload
+        String xmlBody = String.format(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
+                        "<customer>\n" +
+                        "    <name>%s</name>\n" +
+                        "</customer>", customerName);
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Bearer " + actualAccessToken);
+        headers.put("Content-Type", "text/xml");
+
+        HttpResponse response = HTTPSClientUtils.doPost(apiUrl, headers, xmlBody);
+        context.set("invokeAPIResponse", response);
+    }
 
 
     @When("I invoke API of ID {string} with path {string} and method GET using access token {string}")
     public void i_invoke_api_with_accessToken(String apiId, String path, String accessToken) throws Exception {
-        String actualApiId = apiId;
-        if (apiId.startsWith("<") && apiId.endsWith(">")) {
-            actualApiId = (String) context.get(apiId.substring(1, apiId.length() - 1));
-        }
-        String actualAccessToken = accessToken;
-        if (accessToken.startsWith("<") && accessToken.endsWith(">")) {
-            actualAccessToken = (String) context.get(accessToken.substring(1, accessToken.length() - 1));
-        }
+        String actualApiId = resolveFromContext(apiId);
+        String actualAccessToken = resolveFromContext(accessToken);
 
         RestAPIStoreImpl store = (RestAPIStoreImpl) context.get("store");
         APIDTO apiDto = store.getAPI(actualApiId);

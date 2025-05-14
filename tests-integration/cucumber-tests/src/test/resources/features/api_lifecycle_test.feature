@@ -3,27 +3,27 @@ Feature: Complete API Lifecycle Management
   Background:
     Given I have initialized the NodeApp server container
     And I have initialized the Default API Manager container
-    And I initialize the Publisher REST API client with username "admin", password "admin" and tenant "carbon.super" for container "default"
-    And I initialize the Store REST API client with username "admin", password "admin" and tenant "carbon.super" for container "default"
+    And I initialize the Publisher REST API client with username "admin", password "admin" and tenant "carbon.super"
+    And I initialize the Store REST API client with username "admin", password "admin" and tenant "carbon.super"
 
   Scenario: End-to-End API Lifecycle from Creation to Invocation
 #    When I create an API with name "JaxrsAPI", context "/jaxrs" and version "1.0.0"
 #    And I add "/customers/{id}" operation without any scopes to the created API with id "<createdApiId>"
     When I create an API with the following details
-      | name                | PizzaShackAPI                                       |
-      | context             | /pizzashack                                         |
+      | name                | CustomerServiceAPI                                  |
+      | context             | /jaxrs                                              |
       | version             | 1.0.0                                               |
       | apiEndpointURL      | jaxrs_basic/services/customers/customerservice/     |
-      | description         | Simple API for Pizza Shack.                         |
-      | tags                | pizza,delivery                                      |
+      | description         | Simple Customer Service API                         |
+      | tags                | customer,service                                    |
       | tiersCollection     | Gold,Bronze,Unlimited                               |
       | tier                | Gold                                                |
       | defaultVersion      | true                                                |
       | securitySchemes     | oauth2,basic                                        |
       | businessOwner       | Jane Roe                                            |
-      | businessOwnerEmail  | marketing@pizzashack.com                            |
+      | businessOwnerEmail  | marketing@jaxrs.com                                 |
       | technicalOwner      | John Doe                                            |
-      | technicalOwnerEmail | architecture@pizzashack.com                         |
+      | technicalOwnerEmail | architecture@jaxrs.com                              |
       | operations          | [{"target":"/customers/{id}","verb":"GET","authType":"Application & Application User","throttlingPolicy":"Unlimited"},{"target":"/order","verb":"POST","authType":"Application","throttlingPolicy":"Unlimited"}] |
 
     And I deploy a revision of the API with id "<createdApiId>"

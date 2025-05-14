@@ -25,7 +25,7 @@ public class ContainorIntitialisationStepDefinitions {
     public ContainorIntitialisationStepDefinitions(TestContext context) {
         this.context = context;
     }
-    // DefaultAPIMContainer step
+
     @Given("I have initialized the Default API Manager container")
     public void initializeDefaultAPIMContainer() {
         DefaultAPIMContainer apimContainer = DefaultAPIMContainer.getInstance();
@@ -35,6 +35,7 @@ public class ContainorIntitialisationStepDefinitions {
         String gatewayHost = apimContainer.getHost();
         baseGatewayUrl= String.format("https://%s:%d", gatewayHost, gatewayPort);
         context.set("baseGatewayUrl",baseGatewayUrl);
+        context.set("label","default");
     }
 
     @Given("I have initialized the Custom API Manager container with label {string} and deployment toml file path at {string}")
@@ -44,11 +45,7 @@ public class ContainorIntitialisationStepDefinitions {
 
         // Verifying that the file was copied correctly
         String filePathInsideContainer = "/opt/repository/conf/deployment.toml";
-
-        // Executing a command inside the container to check if the file exists and print its contents
         String fileContents = customApimContainer.execInContainer("cat", filePathInsideContainer).getStdout();
-
-        // Log the contents of the file to confirm it is correctly copied
         System.out.println("Contents of the copied deployment.toml inside the container:");
         System.out.println(fileContents);
 
@@ -58,6 +55,7 @@ public class ContainorIntitialisationStepDefinitions {
         String gatewayHost = customApimContainer.getHost();
         baseGatewayUrl= String.format("https://%s:%d", gatewayHost, gatewayPort);
         context.set("baseGatewayUrl",baseGatewayUrl);
+        context.set("label",label);
     }
 
     @Then("I stop the Custom API Manager container")
@@ -67,7 +65,6 @@ public class ContainorIntitialisationStepDefinitions {
 //       Thread.sleep(3000);
     }
 
-    // TomcatServer container step
     @Given("I have initialized the Tomcat server container")
     public void initializeTomcatServerContainer() {
 
@@ -76,7 +73,6 @@ public class ContainorIntitialisationStepDefinitions {
         context.set("serviceBaseUrl",serviceBaseUrl);
     }
 
-    // TomcatServer container step
     @Given("I have initialized the NodeApp server container")
     public void initializeNodeAppServerContainer() {
         NodeAppServer nodeapp = NodeAppServer.getInstance();
@@ -86,7 +82,7 @@ public class ContainorIntitialisationStepDefinitions {
 
     }
 
-    // DefaultAPIMContainer step
+    // DefaultAPIM step
     @Given("I have initialized test instance")
     public void initializeAPIMContainer() {
         baseUrl = "http://localhost:9443/";
@@ -95,15 +91,12 @@ public class ContainorIntitialisationStepDefinitions {
         context.set("baseGatewayUrl",baseGatewayUrl);
         serviceBaseUrl = "http://nodebackend:8080/";
         context.set("serviceBaseUrl",serviceBaseUrl);
-
-
     }
 
     @Then("I clear the context")
     public void clearContext(){
         context.clear();
     }
-
 
 }
 
