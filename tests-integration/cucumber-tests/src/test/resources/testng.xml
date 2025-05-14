@@ -1,23 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<suite name="Test Suite" parallel="false" thread-count="2">
+<suite name="Cucumber Test Suite" parallel="false" thread-count="2">
 
-    <test name="customHeaderTest">
-        <parameter name="cucumber.features" value="src/test/resources/features/customHeaderTest"/>
-        <parameter name="cucumber.glue" value="org.wso2.am.integration.cucumbertests.stepdefinitions"/>
-        <parameter name="cucumber.plugin" value="pretty"/>
+    <test name="CucumberTests">
         <classes>
             <class name="org.wso2.am.integration.cucumbertests.runners.customHeaderTestRunner"/>
-        </classes>
-    </test>
-
-    <test name="APILifecycleTest">
-        <parameter name="cucumber.features" value="src/test/resources/features/api_lifecycle_test.feature"/>
-        <parameter name="cucumber.glue" value="org.wso2.am.integration.cucumbertests.stepdefinitions"/>
-        <parameter name="cucumber.plugin" value="pretty"/>
-        <classes>
             <class name="org.wso2.am.integration.cucumbertests.runners.testrunner"/>
         </classes>
     </test>
-
 
 </suite>
