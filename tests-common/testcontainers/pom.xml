@@ -19,4 +19,33 @@
         <skipCertificateFetch>true</skipCertificateFetch>
     </properties>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>build-node-app-docker-image</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>docker</executable>
+                            <arguments>
+                                <argument>build</argument>
+                                <argument>-t</argument>
+                                <argument>node-customer-service:latest</argument>
+                                <argument>${project.basedir}/src/main/resources/nodeapps/node-customer-service</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+
 </project>
