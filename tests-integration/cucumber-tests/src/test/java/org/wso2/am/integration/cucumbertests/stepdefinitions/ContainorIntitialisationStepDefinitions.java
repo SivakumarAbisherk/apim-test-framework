@@ -40,7 +40,10 @@ public class ContainorIntitialisationStepDefinitions {
 
     @Given("I have initialized the Custom API Manager container with label {string} and deployment toml file path at {string}")
     public void initializeCustomAPIMContainer(String label,String tomlPath) throws IOException, InterruptedException {
-        customApimContainer = new CustomAPIMContainer(label,tomlPath);
+        String baseDir = System.getProperty("user.dir");
+        System.out.println(baseDir);
+        String fullPath = baseDir+tomlPath;
+        customApimContainer = new CustomAPIMContainer(label,fullPath);
         customApimContainer.start();
 
         // Verifying that the file was copied correctly

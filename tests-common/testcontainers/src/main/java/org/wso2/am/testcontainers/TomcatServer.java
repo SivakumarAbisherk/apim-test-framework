@@ -11,7 +11,8 @@ import java.time.Duration;
 
 public class TomcatServer {
     private static final Logger logger = LoggerFactory.getLogger(TomcatServer.class);
-    private static final String ARTIFACT_DIR = "/home/abisherk/Internship/InternProject/apim-test-framework-testcontainers/tests-common/testcontainers/src/main/resources/artifacts";
+    static String baseDir = System.getProperty("user.dir");
+    private static final String ARTIFACT_DIR = baseDir + "/src/main/resources/artifacts";
 
     private final GenericContainer<?> container;
 

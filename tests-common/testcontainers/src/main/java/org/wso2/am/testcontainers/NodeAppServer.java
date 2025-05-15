@@ -12,7 +12,8 @@ import java.time.Duration;
 
 public class NodeAppServer {
     private static final Logger logger = LoggerFactory.getLogger(NodeAppServer.class);
-    private static final String NODE_SERVER_DIR = "/home/abisherk/Internship/InternProject/apim-test-framework-testcontainers/tests-common/testcontainers/src/main/resources/nodeAppServer";
+    static String baseDir = System.getProperty("user.dir");
+    private static final String NODE_SERVER_DIR = baseDir + "/src/main/resources/nodeAppServer";
 
     private final GenericContainer<?> container;
 
