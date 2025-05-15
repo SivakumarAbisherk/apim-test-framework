@@ -6,7 +6,12 @@ Feature: Custom Header Authorization and API Key Support
     And I have initialized the Custom API Manager container with label "customHeader" and deployment toml file path at "/home/abisherk/Internship/InternProject/apim-test-framework/tests-integration/cucumber-tests/src/test/resources/features/customHeaderTest/deployment.toml"
     And I initialize the Store REST API client with username "admin", password "admin" and tenant "carbon.super"
     And I initialize the Publisher REST API client with username "admin", password "admin" and tenant "carbon.super"
-    And I create an application named "CustomHeaderApp" with throttling tier "Unlimited"
+#    And I create an application named "CustomHeaderApp" with throttling tier "Unlimited"
+    When I create an application with the following details
+      | name             | CustomHeaderApp        |
+      | throttlingPolicy | Unlimited              |
+      | description      | Test app for scenarios |
+
     And I create an API with the following details
       | name                | CustomerServiceAPI                                  |
       | context             | /jaxrs                                              |

@@ -32,7 +32,12 @@ Feature: Complete API Lifecycle Management
     When I publish the API with id "<createdApiId>"
     Then The lifecycle status of API "<createdApiId>" should be "Published"
 
-    When I create an application named "CustomerApp" with throttling tier "Unlimited"
+#    When I create an application named "CustomerApp" with throttling tier "Unlimited"
+    When I create an application with the following details
+      | name             | CustomerApp            |
+      | throttlingPolicy | Unlimited              |
+      | description      | Test app for scenarios |
+
     Then I should be able to retrieve the application with id "<createdAppId>"
 
     When I subscribe to API "<createdApiId>" using application "<createdAppId>" with throttling policy "Bronze"

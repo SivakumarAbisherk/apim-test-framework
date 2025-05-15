@@ -1,6 +1,7 @@
 package org.wso2.am.integration.cucumbertests.stepdefinitions;
 
 import com.google.gson.Gson;
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -60,6 +61,21 @@ public class StoreStepDefinitions {
         createdAppId = response.getApplicationId();
         context.set("createdAppId",createdAppId);
     }
+
+    @When("I create an application with the following details")
+    public void i_create_an_application_with_the_following_details(DataTable dataTable) throws Exception {
+        Map<String, String> appDetails = dataTable.asMap(String.class, String.class);
+
+        String appName = appDetails.get("name");
+        String throttlingTier = appDetails.get("throttlingPolicy");
+        String callbackUrl = appDetails.getOrDefault("callbackUrl", "");
+        String description = appDetails.getOrDefault("description", "");
+
+        ApplicationDTO response = store.addApplication(appName,throttlingTier,callbackUrl,description);
+        createdAppId = response.getApplicationId();
+        context.set("createdAppId",createdAppId);
+    }
+
 
     @When("I delete the application with id {string}")
     public void i_delete_application(String appId) throws Exception {
