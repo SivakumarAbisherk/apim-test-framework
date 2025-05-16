@@ -16,10 +16,13 @@ Feature: Custom Header Authorization and API Key Support
       | context             | /jaxrs                                              |
       | version             | 1.0.0                                               |
       | apiEndpointURL      | jaxrs_basic/services/customers/customerservice/     |
-      | description         | Simple Customer Service API                         |
-      | tags                | customer,service                                    |
       | tiersCollection     | Gold,Bronze,Unlimited                               |
       | tier                | Gold                                                |
+
+    And I update API of id "<createdApiId>" with the following details
+
+      | description         | Simple Customer Service API                         |
+      | tags                | customer,service                                    |
       | defaultVersion      | true                                                |
       | securitySchemes     | oauth2,basic,api_key                                |
       | businessOwner       | Jane Roe                                            |
@@ -27,6 +30,7 @@ Feature: Custom Header Authorization and API Key Support
       | technicalOwner      | John Doe                                            |
       | technicalOwnerEmail | architecture@jaxrs.com                              |
       | operations          | [{"target":"/customers/{id}","verb":"GET","authType":"Application & Application User","throttlingPolicy":"Unlimited"},{"target":"/order","verb":"POST","authType":"Application","throttlingPolicy":"Unlimited"}] |
+
 
     And I deploy a revision of the API with id "<createdApiId>"
     And I publish the API with id "<createdApiId>"

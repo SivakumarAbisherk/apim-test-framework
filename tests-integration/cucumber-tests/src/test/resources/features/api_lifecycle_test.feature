@@ -14,10 +14,13 @@ Feature: Complete API Lifecycle Management
       | context             | /jaxrs                                              |
       | version             | 1.0.0                                               |
       | apiEndpointURL      | jaxrs_basic/services/customers/customerservice/     |
-      | description         | Simple Customer Service API                         |
-      | tags                | customer,service                                    |
       | tiersCollection     | Gold,Bronze,Unlimited                               |
       | tier                | Gold                                                |
+
+    And I update API of id "<createdApiId>" with the following details
+
+      | description         | Simple Customer Service API                         |
+      | tags                | customer,service                                    |
       | defaultVersion      | true                                                |
       | securitySchemes     | oauth2,basic,api_key                                |
       | businessOwner       | Jane Roe                                            |

@@ -8,11 +8,7 @@ import io.cucumber.java.en.When;
 import io.cucumber.datatable.DataTable;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.testng.Assert;
-import org.wso2.am.integration.clients.publisher.api.v1.dto.APIDTO;
-import org.wso2.am.integration.clients.publisher.api.v1.dto.APIScopeDTO;
-import org.wso2.am.integration.clients.publisher.api.v1.dto.ScopeDTO;
-import org.wso2.am.integration.clients.publisher.api.v1.dto.APIOperationsDTO;
-import org.wso2.am.integration.clients.publisher.api.v1.dto.DocumentDTO;
+import org.wso2.am.integration.clients.publisher.api.v1.dto.*;
 import org.wso2.am.integration.cucumbertests.di.TestContext;
 import org.wso2.am.integration.test.impl.RestAPIPublisherImpl;
 import org.wso2.am.integration.test.utils.bean.APIRequest;
@@ -57,50 +53,8 @@ public class PublisherStepDefinitions {
         publisher = new RestAPIPublisherImpl(username, password, tenantDomain, baseUrl, containerLabel);
     }
 
-    @When("I create an API with name {string}, context {string} and version {string}")
-    public void i_create_customer_service_api(String name, String APContext, String version) throws Exception {
-        String apiProductionEndPointUrl = serviceBaseUrl + API_ENDPOINT_POSTFIX_URL;
-        context.set("apiProductionEndPointUrl", apiProductionEndPointUrl);
-        String apiDescription = "JAX-RS CustomerService API created for integration testing.";
-        String apiTag = "customer,order,service";
-
-        APIRequest apiCreationRequestBean = new APIRequest(name, APContext, new URL(apiProductionEndPointUrl));
-
-        apiCreationRequestBean.setVersion(version);
-        apiCreationRequestBean.setDescription(apiDescription);
-        apiCreationRequestBean.setTags(apiTag);
-        apiCreationRequestBean.setTiersCollection("Gold,Bronze");
-        apiCreationRequestBean.setTier("Gold");
-        apiCreationRequestBean.setDefault_version_checked("true");
-        List<String> securitySchemes = new ArrayList<>();
-        securitySchemes.add("oauth2");
-        securitySchemes.add("api_key");
-        apiCreationRequestBean.setSecurityScheme(securitySchemes);
-
-//        List<APIOperationsDTO> operationsDTOS = new ArrayList<>();
-//
-//        // GET /customers/{id}
-//        APIOperationsDTO getCustomerByIdOperation = new APIOperationsDTO();
-//        getCustomerByIdOperation.setVerb("GET");
-//        getCustomerByIdOperation.setTarget("/customers/{id}");
-//        getCustomerByIdOperation.setThrottlingPolicy("Unlimited");
-//        getCustomerByIdOperation.setAuthType("Application");
-//        operationsDTOS.add(getCustomerByIdOperation);
-//
-//        apiCreationRequestBean.setOperationsDTOS(operationsDTOS);
-
-        apiCreationRequestBean.setBusinessOwner("customerOwner");
-        apiCreationRequestBean.setBusinessOwnerEmail("owner@company.com");
-        apiCreationRequestBean.setTechnicalOwner("customerTech");
-        apiCreationRequestBean.setTechnicalOwnerEmail("tech@company.com");
-
-        HttpResponse apiCreationResponse = publisher.addAPI(apiCreationRequestBean);
-        String apiId = apiCreationResponse.getData();
-        this.context.set("createdApiId", apiId);
-    }
-
     @When("I create an API with the following details")
-    public void i_create_api_with_details(DataTable dataTable) throws Exception {
+    public void i_create_api(DataTable dataTable) throws Exception {
         Map<String, String> data = dataTable.asMap(String.class, String.class);
 
         String name = data.getOrDefault("name", "DefaultAPI");
@@ -113,27 +67,55 @@ public class PublisherStepDefinitions {
 
         APIRequest apiRequest = new APIRequest(name, contextPath, new URL(apiProductionEndPointUrl));
         apiRequest.setVersion(version);
-        apiRequest.setDescription(data.getOrDefault("description", "Default API for testing."));
-        apiRequest.setTags(data.getOrDefault("tags", "test"));
-        apiRequest.setTiersCollection(data.getOrDefault("tiersCollection", "Gold,Bronze"));
-        apiRequest.setTier(data.getOrDefault("tier", "Gold"));
-        apiRequest.setDefault_version_checked(data.getOrDefault("defaultVersion", "true"));
+        if (data.containsKey("tiersCollection")) {apiRequest.setTiersCollection(data.get("tiersCollection"));};
+        if (data.containsKey("tier")) {apiRequest.setTier(data.get("tier"));};
+
+        HttpResponse apiCreationResponse = publisher.addAPI(apiRequest);
+
+        String apiId = apiCreationResponse.getData();
+        this.context.set("createdApiId", apiId);
+    }
+
+    @When("I update API of id {string} with the following details")
+    public void i_update_api(String appId,DataTable dataTable) throws Exception {
+        Map<String, String> data = dataTable.asMap(String.class, String.class);
+        String actualApiId = resolveFromContext(appId);
+        APIDTO apiDto = publisher.getAPIByID(actualApiId);
+
+        if (data.containsKey("name")) {apiDto.setName(data.get("name"));};
+        if (data.containsKey("version")) {apiDto.setVersion(data.get("version"));};
+        if (data.containsKey("context")) {apiDto.setContext(data.get("context"));};
+        if (data.containsKey("description")) {apiDto.setDescription(data.get("description"));};
+        if (data.containsKey("tags")) {apiDto.setTags(Collections.singletonList(data.get("tags")));};
+        if (data.containsKey("defaultVersion")) {apiDto.setIsDefaultVersion(Boolean.valueOf(data.get("defaultVersion")));};
+        if (data.containsKey("scopes")) {apiDto.setTags(Collections.singletonList(data.get("t")));};
+
+        APIBusinessInformationDTO businessinfo = new APIBusinessInformationDTO();
+        if (data.containsKey("businessOwner")) {businessinfo.setBusinessOwner(data.get("businessOwner"));};
+        if (data.containsKey("businessOwnerEmail")) {businessinfo.setBusinessOwnerEmail(data.get("businessOwnerEmail"));};
+        if (data.containsKey("technicalOwner")) {businessinfo.setTechnicalOwner(data.get("technicalOwner"));};
+        if (data.containsKey("technicalOwnerEmail")) {businessinfo.setTechnicalOwnerEmail(data.get("technicalOwnerEmail"));};
+        apiDto.setBusinessInformation(businessinfo);
 
         if (data.containsKey("securitySchemes")) {
             List<String> securitySchemes = Arrays.stream(data.get("securitySchemes").split(","))
                     .map(String::trim)
                     .collect(Collectors.toList());
-            apiRequest.setSecurityScheme(securitySchemes);
+            apiDto.setSecurityScheme(securitySchemes);
         } else {
-            apiRequest.setSecurityScheme(Arrays.asList("oauth2", "api_key"));
+            apiDto.setSecurityScheme(Arrays.asList("oauth2", "api_key"));
         }
 
-        apiRequest.setBusinessOwner(data.getOrDefault("businessOwner", "defaultOwner"));
-        apiRequest.setBusinessOwnerEmail(data.getOrDefault("businessOwnerEmail", "owner@example.com"));
-        apiRequest.setTechnicalOwner(data.getOrDefault("technicalOwner", "defaultTech"));
-        apiRequest.setTechnicalOwnerEmail(data.getOrDefault("technicalOwnerEmail", "tech@example.com"));
+        if (data.containsKey("scopes")) {
+            List<APIScopeDTO> scopesList = new ArrayList<>();
+            for (String scopeName : data.get("scopes").split(",")) {
+                APIScopeDTO apiScopeDTO = new APIScopeDTO();
+                apiScopeDTO.setScope((ScopeDTO) context.get(scopeName));
+                scopesList.add(apiScopeDTO);
+            }
+            apiDto.setScopes(scopesList);
+        }
 
-        // Parse operations if provided
         if (data.containsKey("operations")) {
             ObjectMapper objectMapper = new ObjectMapper();
             List<Map<String, String>> operations = objectMapper.readValue(
@@ -151,14 +133,12 @@ public class PublisherStepDefinitions {
                 String throttlingPolicy = op.getOrDefault("throttlingPolicy", "Unlimited");
                 apiOperationsDTO.setThrottlingPolicy(throttlingPolicy);
                 operationsDTOS.add(apiOperationsDTO);
-
             }
-            apiRequest.setOperationsDTOS(operationsDTOS);
+            apiDto.setOperations(operationsDTOS);
         }
 
-        HttpResponse apiCreationResponse = publisher.addAPI(apiRequest);
-        String apiId = apiCreationResponse.getData();
-        context.set("createdApiId", apiId);
+        publisher.updateAPI(apiDto);
+        System.out.println(publisher.getAPIByID(actualApiId));
     }
 
 
@@ -395,7 +375,7 @@ public class PublisherStepDefinitions {
     }
 
     @Then("I clean up API with id {string}")
-    public void i_clean_up_api_and_application(String apiId, String appIdPlaceholder) throws Exception {
+    public void i_clean_up_api_and_application(String apiId) throws Exception {
         String actualApiId = (String) context.get(apiId.substring(1, apiId.length() - 1));
         publisher.deleteAPI(actualApiId);
     }
