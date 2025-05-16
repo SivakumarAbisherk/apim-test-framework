@@ -55,13 +55,6 @@ public class StoreStepDefinitions {
         context.set("tenant",tenantDomain);
     }
 
-    @When("I create an application named {string} with throttling tier {string}")
-    public void i_create_application(String appName, String throttlingTier) throws Exception {
-        ApplicationDTO response = store.addApplication(appName, throttlingTier, "","This is new application");
-        createdAppId = response.getApplicationId();
-        context.set("createdAppId",createdAppId);
-    }
-
     @When("I create an application with the following details")
     public void i_create_an_application_with_the_following_details(DataTable dataTable) throws Exception {
         Map<String, String> appDetails = dataTable.asMap(String.class, String.class);
@@ -74,6 +67,20 @@ public class StoreStepDefinitions {
         ApplicationDTO response = store.addApplication(appName,throttlingTier,callbackUrl,description);
         createdAppId = response.getApplicationId();
         context.set("createdAppId",createdAppId);
+    }
+
+    @When("I update the application with id {string} with the following details")
+    public void i_update_the_application(String appId,DataTable dataTable) throws Exception {
+        Map<String, String> appDetails = dataTable.asMap(String.class, String.class);
+        String actualAppId = resolveFromContext(appId);
+        ApplicationDTO appDto = store.getApplicationById(actualAppId);
+
+        if (appDetails.containsKey("name")) {appDto.setName(appDetails.get("name"));};
+        if (appDetails.containsKey("throttlingPolicy")) {appDto.setThrottlingPolicy(appDetails.get("throttlingPolicy"));};
+        if (appDetails.containsKey("description")) {appDto.setDescription(appDetails.get("description"));};
+
+        System.out.println(appDto);
+        ApplicationDTO response = store.applicationsApi.applicationsApplicationIdPut(actualAppId,appDto,"");
     }
 
 
