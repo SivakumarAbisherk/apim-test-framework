@@ -3,10 +3,8 @@ package org.wso2.am.integration.cucumbertests.stepdefinitions;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import org.wso2.am.integration.cucumbertests.di.TestContext;
-import org.wso2.am.testcontainers.CustomAPIMContainer;
-import org.wso2.am.testcontainers.DefaultAPIMContainer;
-import org.wso2.am.testcontainers.NodeAppServer;
-import org.wso2.am.testcontainers.TomcatServer;
+import org.wso2.am.integration.test.utils.ModulePathResolver;
+import org.wso2.am.testcontainers.*;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -18,6 +16,7 @@ public class ContainorIntitialisationStepDefinitions {
     Integer HTTPS_PORT=8243;
     Integer HTTP_PORT=8280;
     CustomAPIMContainer customApimContainer;
+    String callerModuleDir = ModulePathResolver.getModuleDir(ContainorIntitialisationStepDefinitions .class);
 
 
     private final TestContext context;
@@ -40,9 +39,7 @@ public class ContainorIntitialisationStepDefinitions {
 
     @Given("I have initialized the Custom API Manager container with label {string} and deployment toml file path at {string}")
     public void initializeCustomAPIMContainer(String label,String tomlPath) throws IOException, InterruptedException {
-        String baseDir = System.getProperty("user.dir");
-        System.out.println(baseDir);
-        String fullPath = baseDir+tomlPath;
+        String fullPath = callerModuleDir+tomlPath;
         customApimContainer = new CustomAPIMContainer(label,fullPath);
         customApimContainer.start();
 

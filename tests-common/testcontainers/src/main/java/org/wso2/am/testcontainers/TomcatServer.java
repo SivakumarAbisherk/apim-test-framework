@@ -6,13 +6,14 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.MountableFile;
+import org.wso2.am.integration.test.utils.ModulePathResolver;
 
 import java.time.Duration;
 
 public class TomcatServer {
     private static final Logger logger = LoggerFactory.getLogger(TomcatServer.class);
-    static String baseDir = System.getProperty("user.dir");
-    private static final String ARTIFACT_DIR = baseDir + "/src/main/resources/artifacts";
+    private static final String ARTIFACT_DIR = "/src/main/resources/artifacts";
+    String callerModuleDir = ModulePathResolver.getModuleDir(TomcatServer .class);
 
     private final GenericContainer<?> container;
 
@@ -22,7 +23,7 @@ public class TomcatServer {
         container = new GenericContainer<>("tomcat:9.0-jdk8")
                 .withExposedPorts(8080)
                 .withCopyFileToContainer(
-                        MountableFile.forHostPath(ARTIFACT_DIR),
+                        MountableFile.forHostPath(callerModuleDir+ARTIFACT_DIR),
                         "/usr/local/tomcat/webapps/"
                 )
                 .withNetwork(ContainerNetwork.SHARED_NETWORK)
