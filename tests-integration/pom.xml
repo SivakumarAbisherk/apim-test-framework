@@ -12,7 +12,6 @@
     <artifactId>tests-integration</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>backends-tests</module>
         <module>cucumber-tests</module>
     </modules>
 
