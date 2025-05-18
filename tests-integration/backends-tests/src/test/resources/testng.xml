@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<suite name="Test Suite" parallel="methods">
-    <test name="Basic Profile Tests">
-        <classes>
-<!--            <class name="org.wso2.am.integration.tests.AdminServiceTest.TenantUserInitialiserTest"/>-->
-        </classes>
-    </test>
-</suite>
