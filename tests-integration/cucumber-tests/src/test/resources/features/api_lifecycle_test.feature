@@ -3,12 +3,11 @@ Feature: Complete API Lifecycle Management
   Background:
     Given I have initialized the NodeApp server container
     And I have initialized the Default API Manager container
+#    Given I have initialized test instance
     And I initialize the Publisher REST API client with username "admin", password "admin" and tenant "carbon.super"
     And I initialize the Store REST API client with username "admin", password "admin" and tenant "carbon.super"
 
   Scenario: End-to-End API Lifecycle from Creation to Invocation
-#    When I create an API with name "JaxrsAPI", context "/jaxrs" and version "1.0.0"
-#    And I add "/customers/{id}" operation without any scopes to the created API with id "<createdApiId>"
     When I create an API with the following details
       | name                | CustomerServiceAPI                                  |
       | context             | /jaxrs                                              |
@@ -29,13 +28,18 @@ Feature: Complete API Lifecycle Management
       | technicalOwnerEmail | architecture@jaxrs.com                              |
       | operations          | [{"target":"/customers/{id}","verb":"GET","authType":"Application & Application User","throttlingPolicy":"Unlimited"},{"target":"/order","verb":"POST","authType":"Application","throttlingPolicy":"Unlimited"}] |
 
+#    And I add an operation with the following details to the created API with id "<createdApiId>"
+#      | target              | Simple Customer Service API                         |
+#      | verb                | customer,service                                    |
+#      | authType            | true                                                |
+#      | throttlingPolicy    | oauth2,basic,api_key                                |
+
     And I deploy a revision of the API with id "<createdApiId>"
     Then I should be able to retrieve the API with id "<createdApiId>"
 
     When I publish the API with id "<createdApiId>"
     Then The lifecycle status of API "<createdApiId>" should be "Published"
 
-#    When I create an application named "CustomerApp" with throttling tier "Unlimited"
     When I create an application with the following details
       | name             | CustomerApp            |
       | throttlingPolicy | Unlimited              |

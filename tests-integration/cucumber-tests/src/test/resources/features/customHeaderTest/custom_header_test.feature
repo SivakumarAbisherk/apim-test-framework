@@ -5,8 +5,7 @@ Feature: Custom Header Authorization and API Key Support
     And I have initialized the Custom API Manager container with label "customHeader" and deployment toml file path at "/src/test/resources/features/customHeaderTest/deployment.toml"
     And I initialize the Store REST API client with username "admin", password "admin" and tenant "carbon.super"
     And I initialize the Publisher REST API client with username "admin", password "admin" and tenant "carbon.super"
-#    And I create an application named "CustomHeaderApp" with throttling tier "Unlimited"
-    When I create an application with the following details
+    And I create an application with the following details
       | name             | CustomHeaderApp        |
       | throttlingPolicy | Unlimited              |
       | description      | Test app for scenarios |
@@ -30,7 +29,6 @@ Feature: Custom Header Authorization and API Key Support
       | technicalOwner      | John Doe                                            |
       | technicalOwnerEmail | architecture@jaxrs.com                              |
       | operations          | [{"target":"/customers/{id}","verb":"GET","authType":"Application & Application User","throttlingPolicy":"Unlimited"},{"target":"/order","verb":"POST","authType":"Application","throttlingPolicy":"Unlimited"}] |
-
 
     And I deploy a revision of the API with id "<createdApiId>"
     And I publish the API with id "<createdApiId>"

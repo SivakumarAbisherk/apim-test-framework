@@ -16,21 +16,16 @@ public class NodeAppServer {
 
     public NodeAppServer() {
         logger.info("Initializing NodeAppServer...");
-
-        // Create a Docker container for the Node.js apps and proxy server
         container = new GenericContainer<>("node-customer-service")
                 .withExposedPorts(8080)
                 .withNetwork(ContainerNetwork.SHARED_NETWORK)
                 .withNetworkAliases("nodebackend")
                 .waitingFor(Wait.forListeningPort().withStartupTimeout(Duration.ofMinutes(5)));
 
-        // Attach a real-time log consumer
         Slf4jLogConsumer logConsumer = new Slf4jLogConsumer(logger);
         container.withLogConsumer(logConsumer);
-        // Start the container
         container.start();
         logger.info("NodeAppServer successfully initialized");
-
     }
 
     private static class InstanceHolder {

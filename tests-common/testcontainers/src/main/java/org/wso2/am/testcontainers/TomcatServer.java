@@ -19,7 +19,6 @@ public class TomcatServer {
 
     private TomcatServer() {
         logger.info("Initializing TomcatServer...");
-
         container = new GenericContainer<>("tomcat:9.0-jdk8")
                 .withExposedPorts(8080)
                 .withCopyFileToContainer(
@@ -30,13 +29,10 @@ public class TomcatServer {
                 .withNetworkAliases("tomcatbackend")
                 .waitingFor(Wait.forListeningPort().withStartupTimeout(Duration.ofMinutes(10)));
 
-        // Attach a real-time log consumer
         Slf4jLogConsumer logConsumer = new Slf4jLogConsumer(logger);
         container.withLogConsumer(logConsumer);
-
         container.start();
         logger.info("TomcatServer successfully initialized");
-
     }
 
     private static class InstanceHolder {

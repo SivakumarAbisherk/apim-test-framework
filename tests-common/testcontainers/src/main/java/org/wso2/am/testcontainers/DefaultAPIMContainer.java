@@ -9,7 +9,6 @@ public class DefaultAPIMContainer extends BaseAPIMContainer {
 
     private DefaultAPIMContainer() {
         logger.info("Initializing DefaultAPIMContainer...");
-        // Attach real-time log consumer
         this.withLogConsumer(new Slf4jLogConsumer(logger));
         this.start();
         logger.info("DefaultAPIMContainer successfully initialized");

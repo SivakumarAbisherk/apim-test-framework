@@ -2,18 +2,13 @@ package org.wso2.am.integration.cucumbertests.stepdefinitions;
 
 import com.google.gson.Gson;
 import io.cucumber.datatable.DataTable;
-import io.cucumber.java.Before;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.json.JSONObject;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.wso2.am.integration.clients.store.api.v1.dto.*;
-import org.wso2.am.integration.cucumbertests.di.TestContext;
+import org.wso2.am.integration.cucumbertests.TestContext;
 import org.wso2.am.integration.test.impl.RestAPIStoreImpl;
-import org.wso2.am.integration.test.utils.base.APIMIntegrationConstants;
-import org.wso2.am.integration.test.utils.http.HTTPSClientUtils;
-import org.wso2.am.testcontainers.DefaultAPIMContainer;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 import org.apache.commons.codec.binary.Base64;
 
@@ -21,12 +16,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-
-import static java.util.Base64.*;
 
 public class StoreStepDefinitions {
 
@@ -38,10 +30,8 @@ public class StoreStepDefinitions {
     private final TestContext context;
 
     public StoreStepDefinitions(TestContext context) {
-
         this.context = context;
         baseUrl = this.context.get("baseUrl").toString();
-//        baseUrl="https://localhost:9443/";
     }
 
 
@@ -83,10 +73,10 @@ public class StoreStepDefinitions {
         ApplicationDTO response = store.applicationsApi.applicationsApplicationIdPut(actualAppId,appDto,"");
     }
 
-
     @When("I delete the application with id {string}")
     public void i_delete_application(String appId) throws Exception {
-        store.deleteApplication(appId);
+        String actualAppId = resolveFromContext(appId);
+        store.deleteApplication(actualAppId);
     }
 
     @When("I subscribe to API {string} using application {string} with throttling policy {string}")
@@ -167,8 +157,6 @@ public class StoreStepDefinitions {
         System.out.println(accessTokenGenerationResponseScope);
         Assert.assertTrue(accessTokenGenerationResponseScope.getString("scope").contains(scope));
         String accessToken = accessTokenGenerationResponseScope.getString("access_token");
-//        HttpResponse response = doTokenPost(tokenEndpoint, payload, headers);
-//        String accessToken = new Gson().fromJson(response.getData(), Map.class).get("access_token").toString();
         context.set("generatedAccessToken", accessToken);
     }
 
@@ -188,16 +176,6 @@ public class StoreStepDefinitions {
         context.set("generatedApiKey", apiKeyDTO.getApikey());
     }
 
-
-    private String resolveFromContext(String input) {
-        if (input.startsWith("<") && input.endsWith(">")) {
-            return (String) context.get(input.substring(1, input.length() - 1));
-        }
-        return input;
-    }
-
-
-
     @Then("I should be able to list all applications")
     public void i_should_list_all_applications() throws Exception {
         ApplicationListDTO apps = store.getAllApps();
@@ -206,7 +184,8 @@ public class StoreStepDefinitions {
 
     @Then("I should be able to list all subscriptions for application id {string}")
     public void i_should_list_subscriptions(String appId) throws Exception {
-        SubscriptionListDTO subscriptions = store.getAllSubscriptionsOfApplication(appId);
+        String actualAppId = resolveFromContext(appId);
+        SubscriptionListDTO subscriptions = store.getAllSubscriptionsOfApplication(actualAppId);
         context.set("appSubscriptions", subscriptions);
     }
 
@@ -218,25 +197,29 @@ public class StoreStepDefinitions {
 
     @When("I add a rating of {int} to API {string} for tenant {string}")
     public void i_add_rating_to_api(Integer rating, String apiId, String tenantDomain) throws Exception {
-        HttpResponse response = store.addRating(apiId, rating, tenantDomain);
+        String actualApiId = resolveFromContext(apiId);
+        HttpResponse response = store.addRating(actualApiId, rating, tenantDomain);
         context.set("ratingResponse", response);
     }
 
     @When("I remove the rating for API {string} in tenant {string}")
     public void i_remove_rating(String apiId, String tenantDomain) throws Exception {
-        HttpResponse response = store.removeRating(apiId, tenantDomain);
+        String actualApiId = resolveFromContext(apiId);
+        HttpResponse response = store.removeRating(actualApiId, tenantDomain);
         context.set("ratingRemovalResponse", response);
     }
 
     @When("I add a comment {string} to API {string} in category {string}")
     public void i_add_comment_to_api(String comment, String apiId, String category) throws Exception {
-        HttpResponse response = store.addComment(apiId, comment, category, null);
+        String actualApiId = resolveFromContext(apiId);
+        HttpResponse response = store.addComment(actualApiId, comment, category, null);
         context.set("addedComment", response);
     }
 
     @Then("I should be able to get comments for API {string} in tenant {string}")
     public void i_should_get_comments(String apiId, String tenantDomain) throws Exception {
-        HttpResponse response = store.getComments(apiId, tenantDomain, false, 10, 0);
+        String actualApiId = resolveFromContext(apiId);
+        HttpResponse response = store.getComments(actualApiId, tenantDomain, false, 10, 0);
         context.set("commentsResponse", response);
     }
 
@@ -254,28 +237,39 @@ public class StoreStepDefinitions {
 
     @Then("I should be able to get the API with id {string}")
     public void i_should_get_api(String apiId) throws Exception {
-        APIDTO api = store.getAPI(apiId);
+        String actualApiId = resolveFromContext(apiId);
+        APIDTO api = store.getAPI(actualApiId);
         context.set("apiDetails", api);
     }
 
     @When("I remove the comment with id {string} from API {string}")
     public void i_remove_comment(String commentId, String apiId) throws Exception {
-        HttpResponse response = store.removeComment(commentId, apiId);
+        String actualApiId = resolveFromContext(apiId);
+        String actualCommentId = resolveFromContext(commentId);
+        HttpResponse response = store.removeComment(actualCommentId,actualApiId);
         context.set("commentRemoval", response);
     }
 
     @When("I edit comment with id {string} on API {string} to {string}")
     public void i_edit_comment(String commentId, String apiId, String newContent) throws Exception {
-        HttpResponse response = store.editComment(commentId, apiId, newContent, "general");
+        String actualApiId = resolveFromContext(apiId);
+        String actualCommentId = resolveFromContext(commentId);
+        HttpResponse response = store.editComment(actualCommentId, actualApiId, newContent, "general");
         context.set("editedComment", response);
     }
 
     @Then("I clean up Application of Id {string}")
     public void i_clean_up_application(String appId) throws Exception {
-        String actualAppId = (String) context.get(appId.substring(1, appId.length() - 1));
+        String actualAppId = resolveFromContext(appId);
         store.deleteApplication(actualAppId);
     }
 
+    private String resolveFromContext(String input) {
+        if (input.startsWith("<") && input.endsWith(">")) {
+            return (String) context.get(input.substring(1, input.length() - 1));
+        }
+        return input;
+    }
 
     private HttpResponse doTokenPost(String tokenUrl, String payload, Map<String, String> headers) throws IOException, IOException {
         URL url = new URL(tokenUrl);

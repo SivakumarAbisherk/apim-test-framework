@@ -1,15 +1,12 @@
 package org.wso2.am.integration.cucumbertests.stepdefinitions;
 
-import io.cucumber.java.Before;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.wso2.am.integration.clients.store.api.v1.dto.APIDTO;
-import org.wso2.am.integration.cucumbertests.di.TestContext;
+import org.wso2.am.integration.cucumbertests.TestContext;
 import org.wso2.am.integration.test.impl.RestAPIStoreImpl;
 import org.wso2.am.integration.test.utils.http.HTTPSClientUtils;
-import org.wso2.am.testcontainers.DefaultAPIMContainer;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 
 import java.util.HashMap;
@@ -23,10 +20,7 @@ public class APIInvocationStepDefinitions {
 
     public APIInvocationStepDefinitions(TestContext context) {
         this.context = context;
-        //        baseGatewayUrl="https://localhost:8243";
         baseGatewayUrl= this.context.get("baseGatewayUrl").toString();
-
-//        baseUrl="https://localhost:9443/";
     }
 
 
@@ -38,7 +32,7 @@ public class APIInvocationStepDefinitions {
         RestAPIStoreImpl store = (RestAPIStoreImpl) context.get("store");
         APIDTO apiDto = store.getAPI(actualApiId);
         String apiContext = apiDto.getContext();
-        String apiUrl = baseGatewayUrl + apiContext + path;
+        apiUrl = baseGatewayUrl + apiContext + path;
 
         // Construct XML payload
         String xmlBody = String.format(

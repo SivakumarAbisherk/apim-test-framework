@@ -2,9 +2,7 @@ package org.wso2.am.testcontainers;
 
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
 import org.testcontainers.utility.MountableFile;
-import org.testcontainers.containers.wait.strategy.WaitStrategy;
 import org.wso2.am.integration.test.utils.ModulePathResolver;
 
 import java.time.Duration;
@@ -27,13 +25,6 @@ public abstract class BaseAPIMContainer extends GenericContainer<BaseAPIMContain
         withCommand("sh /opt/bin/api-manager.sh");
         withNetwork(ContainerNetwork.SHARED_NETWORK);
         waitingFor(Wait.forListeningPort().withStartupTimeout(Duration.ofMinutes(20)));
-
-
-//        waitingFor(Wait.forHttps("/carbon/")
-//                .forStatusCode(200)
-//                .forPort(9443) // or 9763 for HTTP
-//                .withStartupTimeout(Duration.ofMinutes(20)));
-
     }
 
     public String getAPIManagerUrl() {

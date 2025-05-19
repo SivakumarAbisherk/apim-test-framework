@@ -2,12 +2,11 @@ package org.wso2.am.integration.cucumbertests.stepdefinitions;
 
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
-import org.wso2.am.integration.cucumbertests.di.TestContext;
+import org.wso2.am.integration.cucumbertests.TestContext;
 import org.wso2.am.integration.test.utils.ModulePathResolver;
 import org.wso2.am.testcontainers.*;
 
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 public class ContainorIntitialisationStepDefinitions {
     String baseUrl;
@@ -59,25 +58,23 @@ public class ContainorIntitialisationStepDefinitions {
     }
 
     @Then("I stop the Custom API Manager container")
-    public void endCustomAPIMContainer() throws InterruptedException {
+    public void endCustomAPIMContainer(){
 //       customApimContainer.stop();
        customApimContainer.close();
-//       Thread.sleep(3000);
     }
 
     @Given("I have initialized the Tomcat server container")
     public void initializeTomcatServerContainer() {
 
-        TomcatServer tomcat = TomcatServer.getInstance();
+        TomcatServer.getInstance();
         serviceBaseUrl = "http://tomcatbackend:8080/";
         context.set("serviceBaseUrl",serviceBaseUrl);
     }
 
     @Given("I have initialized the NodeApp server container")
     public void initializeNodeAppServerContainer() {
-        NodeAppServer nodeapp = NodeAppServer.getInstance();
+        NodeAppServer.getInstance();
         serviceBaseUrl = "http://nodebackend:8080/";
-
         context.set("serviceBaseUrl",serviceBaseUrl);
 
     }
@@ -91,6 +88,7 @@ public class ContainorIntitialisationStepDefinitions {
         context.set("baseGatewayUrl",baseGatewayUrl);
         serviceBaseUrl = "http://nodebackend:8080/";
         context.set("serviceBaseUrl",serviceBaseUrl);
+        context.set("label","local");
     }
 
     @Then("I clear the context")

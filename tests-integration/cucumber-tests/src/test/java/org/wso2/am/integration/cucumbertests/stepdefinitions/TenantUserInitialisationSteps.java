@@ -1,6 +1,5 @@
 package org.wso2.am.integration.cucumbertests.stepdefinitions;
 
-import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.testng.Assert;
@@ -12,25 +11,6 @@ public class TenantUserInitialisationSteps {
     private TenantUserInitialiserClient superTenantClient;
     private TenantUserInitialiserClient tenantClient1;
     private TenantUserInitialiserClient tenantClient2;
-
-    private String port;
-
-//    @Before
-//    public void setUp() {
-//        DefaultAPIMContainer apimContainer = DefaultAPIMContainer.getInstance();
-//        port = String.valueOf(apimContainer.getHttpsPort());
-//        System.out.println(port);
-//        System.out.println(apimContainer.getHost());
-////        port = "9443";
-//        superTenantClient = new TenantUserInitialiserClient("admin", "admin", port);
-//        tenantClient1 = new TenantUserInitialiserClient("tenant1@tenant1.com","tenant1", port);
-//        tenantClient2 = new TenantUserInitialiserClient("tenant2@tenant2.com","tenant2", port);
-//    }
-
-    @Given("the API Manager is running")
-    public void apiManagerIsRunning() {
-        // Initialized in @Before
-    }
 
     @When("I add tenant {string} {string} with admin username {string} and admin password {string} with domain {string} and email {string}")
     public void addTenant(String firstName, String lastName,String adminusername, String password, String domain, String email) {

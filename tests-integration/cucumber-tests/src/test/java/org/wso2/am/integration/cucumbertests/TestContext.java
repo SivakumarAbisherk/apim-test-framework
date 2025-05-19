@@ -1,4 +1,4 @@
-package org.wso2.am.integration.cucumbertests.di;
+package org.wso2.am.integration.cucumbertests;
 
 import java.util.HashMap;
 import java.util.Map;
