@@ -17,7 +17,7 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <truststore.path>${basedir}/truststore.jks</truststore.path>
+        <truststore.path>${user.dir}/truststore.jks</truststore.path>
         <truststore.password>changeit</truststore.password>
         <wso2.host>localhost</wso2.host>
         <wso2.port>9443</wso2.port>
