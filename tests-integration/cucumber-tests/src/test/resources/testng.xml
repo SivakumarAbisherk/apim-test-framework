@@ -2,18 +2,12 @@
 <suite name="Cucumber Test Suite" parallel="false" thread-count="2">
 
     <test name="CucumberTests">
-        <groups>
-            <run>
-<!--                <include name="groupTest"/>-->
-                <exclude name="groupTest"/>
-            </run>
-        </groups>
         <classes>
+            <parameter name="feature" value="${feature}" />
             <class name="org.wso2.am.integration.cucumbertests.runners.customHeaderTestRunner"/>
             <class name="org.wso2.am.integration.cucumbertests.runners.testrunner"/>
             <class name="org.wso2.am.integration.cucumbertests.runners.groupedTestRunner"/>
         </classes>
     </test>
-
 
 </suite>

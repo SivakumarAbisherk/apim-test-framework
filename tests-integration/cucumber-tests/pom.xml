@@ -15,6 +15,7 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <runGroupTest>false</runGroupTest>
     </properties>
 
     <dependencies>
@@ -80,6 +81,9 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
                 <configuration>
+                    <!-- Exclude groupTest if not explicitly enabled -->
+                    <excludedGroups>${surefire.excludedGroups}</excludedGroups>
+                    <groups>${surefire.groups}</groups>
                     <suiteXmlFiles>
                         <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
@@ -87,10 +91,38 @@
                         <testcontainers.reuse.enable>true</testcontainers.reuse.enable>
                         <org.apache.http.wire.level>OFF</org.apache.http.wire.level>
                     </systemPropertyVariables>
-
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- Default profile: exclude groupTest -->
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <surefire.excludedGroups>groupTest</surefire.excludedGroups>
+                <surefire.groups></surefire.groups>
+            </properties>
+        </profile>
+
+        <!-- Profile to include ONLY groupTest -->
+        <profile>
+            <id>run-groupTest</id>
+            <activation>
+                <property>
+                    <name>runGroupTest</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <properties>
+                <surefire.excludedGroups></surefire.excludedGroups>
+                <surefire.groups>groupTest</surefire.groups>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>
