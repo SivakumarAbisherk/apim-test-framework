@@ -3,11 +3,9 @@
 
     <test name="CucumberTests">
         <classes>
-            <parameter name="feature" value="${feature}" />
             <class name="org.wso2.am.integration.cucumbertests.runners.customHeaderTestRunner"/>
             <class name="org.wso2.am.integration.cucumbertests.runners.testrunner"/>
             <class name="org.wso2.am.integration.cucumbertests.runners.groupedTestRunner"/>
         </classes>
     </test>
-
 </suite>
