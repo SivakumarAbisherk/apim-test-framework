@@ -3,6 +3,7 @@ package org.wso2.am.integration.cucumbertests.stepdefinitions;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import org.wso2.am.integration.cucumbertests.TestContext;
+import org.wso2.am.integration.cucumbertests.UnzipUtil;
 import org.wso2.am.integration.test.utils.ModulePathResolver;
 import org.wso2.am.testcontainers.*;
 import io.cucumber.datatable.DataTable;
@@ -85,14 +86,37 @@ public class ContainorIntitialisationStepDefinitions {
     public void initializeAPIMContainerWithDataTable(DataTable dataTable) {
         Map<String, String> config = dataTable.asMap(String.class, String.class);
 
-        String baseUrl = config.getOrDefault("baseUrl", "http://localhost:9443/");
-        context.set("baseUrl", baseUrl);
-        String baseGatewayUrl = config.getOrDefault("baseGatewayUrl", "https://localhost:8243");
-        context.set("baseGatewayUrl", baseGatewayUrl);
-        String serviceBaseUrl = config.getOrDefault("serviceBaseUrl", "http://nodebackend:8080/");
-        context.set("serviceBaseUrl", serviceBaseUrl);
+        String thisBaseUrl = config.getOrDefault("baseUrl", baseUrl);
+        context.set("baseUrl", thisBaseUrl);
+        String thisBaseGatewayUrl = config.getOrDefault("baseGatewayUrl", baseGatewayUrl);
+        context.set("baseGatewayUrl", thisBaseGatewayUrl);
+        String thisServiceBaseUrl = config.getOrDefault("serviceBaseUrl", serviceBaseUrl);
+        context.set("serviceBaseUrl", thisServiceBaseUrl);
         String label = config.getOrDefault("label", "local");
         context.set("label", label);
+    }
+
+    @Given("The zip file at relative location {string} is extracted to {string}")
+    public void the_zip_file_is_extracted_to(String zipRelativePath, String extractRelativePath) throws IOException {
+//            String zipPath = projectRoot + File.separator + zipRelativePath;
+
+        String callerModuleDestDir = ModulePathResolver.getModuleDir(BaseAPIMContainer .class);
+        String extractTo = callerModuleDestDir  + extractRelativePath;
+        String zipDir = context.get("repoUrl").toString() + zipRelativePath;
+
+        // Unzip using the utility
+        try {
+//            UnzipUtil.unzip(zipPath, extractTo);
+            UnzipUtil.unzip(zipDir, extractTo);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Given("The repository directory path is {string}")
+    public void setRepositoryDirectoryPath(String repoPath) {
+        // Save to test context (assuming TestContext is your context manager)
+        context.set("repoUrl",repoPath);
     }
 
 
